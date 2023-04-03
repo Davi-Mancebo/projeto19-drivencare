@@ -1,11 +1,11 @@
 import * as medic from "../repositories/authRepository";
 
 export async function addAvailability(req, res) {
-  const medicId = req.params?.id;
+  const medicId = res.locals.auth;
   const { available_date, available_time } = req.body;
 
   try {
-    await medic.addAvailability(medicId, available_date, available_time);
+    await medic.addAvailability(medicId.id, available_date, available_time);
 
     return res.sendStatus(201);
   } catch (error) {
@@ -78,8 +78,21 @@ export async function findAppointments(req, res) {
   const medicId = req.params.id;
   try {
     const appointments = await medic.findAppointmentsByMedicId(medicId);
-    if(appointments.rows.length === 0) return res.sendStatus(404)
+    if (appointments.rows.length === 0) return res.sendStatus(404);
     return res.send(appointments.rows);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+}
+export async function scheduleAppointment(req, res) {
+  try {
+    const user = res.locals.auth;
+    const medicId = res.params?.id;
+    const date = req.body;
+    const finishDate = `${date.date} ${date.time}`;
+
+    await medic.createAppointment(user, medicId, finishDate);
+    return res.sendStatus(201);
   } catch (error) {
     return res.status(500).send(error.message);
   }

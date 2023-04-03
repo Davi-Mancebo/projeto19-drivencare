@@ -51,7 +51,6 @@ export async function signIn(req, res) {
     res.status(500).send(error.message);
   }
 }
-
 export async function logout(req, res) {
   const user = res.locals.auth;
   try {

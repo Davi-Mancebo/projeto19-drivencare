@@ -57,8 +57,15 @@ export function findAppointmentsByMedicId(medicId) {
     [medicId]
   );
 }
-export function addDayforAppointments(date, time){
-
+export function addDayforAppointments(id, date, time) {
+  return db.query(`
+    INSERT INTO appointments VALUES($1, $2, $3)
+  `, [id, date, time]);
+}
+export function createAppointment(medicid, userid, date){
+  db.query(`
+    INSERT INTO medicalappointments VALUES ($1, $2, $3)
+  `, [medicid, userid, date])
 }
 export async function getAllMineConsults(id) {
   return db.query(
@@ -70,7 +77,7 @@ export async function getAllMineConsults(id) {
     p.name 
   FROM medicalappointments ma 
   JOIN users p ON ma.userid = p.id
-  WHERE ma.medicid = $1;`,
+  WHERE ma.userid = $1;`,
     [id]
   );
 }
@@ -84,7 +91,7 @@ export async function getAllMineFinishedConsults(id) {
     p.name 
   FROM medicalappointments ma 
   JOIN users p ON ma.userid = p.id
-  WHERE ma.medicid = $1 AND ma.finished = true;`,
+  WHERE ma.userid = $1 AND ma.finished = true;`,
     [id]
   );
 }
@@ -103,7 +110,7 @@ export async function finishConsult(id) {
 export async function addAvailability(id, date, time) {
   return db.query(
     `
-  INSERT INTO appointments (medicid, available_date, available_time)
+  INSERT INTO appointments (medicid, date, time)
   VALUES ($1, $2, $3)
 `,
     [id, date, time]
